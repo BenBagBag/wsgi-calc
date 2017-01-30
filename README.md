@@ -12,3 +12,7 @@ Addition: http://localhost:8080/add/2/4
 Subtraction: http://localhost:8080/sub/6/92
 Multiplication: http://localhost:8080/mult/13/60
 Division: http://localhost:8080/div/23/60
+
+To run:
+`python calculator.py`
+Navigate to: http://localhost:8080/div/10/2
