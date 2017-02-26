@@ -1,21 +1,24 @@
 import re
 
-# def add(*nums):
 def add(x, y):
     answer = x + y
     return "<p>{x} + {y} = {answer}</p>".format(x=str(x), y=str(y), answer=str(answer))
 
 
 def div(x, y):
-    answer = x / y
+    try:
+        answer = x / y
+    except ZeroDivisionError:
+        raise ZeroDivisionError
     return "<p>{x} / {y} = {answer}</p>".format(x=str(x), y=str(y), answer=str(answer))
 
 
+def home():
+    return "<h1>WSGI Calculator</h1>"
+
+
 def mult(x, y):
-    try:
-        answer = x * y
-    except ZeroDivisionError:
-        raise ZeroDivisionError
+    answer = x * y
     return "<p>{x} * {y} = {answer}</p>".format(x=str(x), y=str(y), answer=str(answer))
 
 
@@ -27,11 +30,7 @@ def application(environ, start_response):
     headers = [("Content-type", "text/html")]
     try:
         path = environ.get('PATH_INFO', None)
-        if path is None:
-            raise NameError
-        func, args = resolve_path(path)
-        body = func(*args)
-        body += """
+        main_body = """
         <p>This is a calculator that takes input via the url.</p>
         <p>The first argument is the operation. Options: add, sub, mult, div</p>
         <p>The second and third arguments are the numbers.</p>
@@ -44,6 +43,9 @@ def application(environ, start_response):
         <li>Division: http://localhost:8080/div/23/60</li>
         </ul>
                 """
+        func, args = resolve_path(path)
+        body = func(*args)
+        body += main_body
         status = "200 OK"
     except NameError:
         status = "404 Not Found"
@@ -64,15 +66,17 @@ def resolve_path(path):
     url_list = path.split("/")
     func = url_list[1]
     str_nums = url_list[2:]
+    print(url_list)
     try:
         nums = [float(x) for x in str_nums]
     except ValueError:
-        raise NameError
+        raise ValueError("Sorry, that's not a valid path.")
     funcs = {
         "add": add,
         "sub": sub,
         "mult": mult,
-        "div": div
+        "div": div,
+        "": home
     }
     if func in funcs:
         return funcs[func], nums
